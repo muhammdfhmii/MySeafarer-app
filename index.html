@@ -627,7 +627,7 @@ function openServiceForm(r){
   const opName=profile.operator||"your current operator";
   openLayer(`<div class="drawer-head"><h3>${isNew?"Add contract":"Edit contract"}</h3><button class="btn sm" type="button" data-close>Cancel</button></div>
   <form class="drawer-body" novalidate><div class="form">
-    <div class="field full"><label for="s-vessel">Ship's name *</label><input id="s-vessel" value="${v("vessel")}" placeholder="e.g. Golden Centaurus"></div>
+    <div class="field full"><label for="s-vessel">Ship's name *</label><input id="s-vessel" value="${v("vessel")}" placeholder="e.g. MT Ocean Star"></div>
     <div class="field"><label for="s-on">Sign-on date *</label><input id="s-on" type="date" value="${v("signOn")}"></div>
     <div class="field"><label for="s-off">Sign-off date</label><input id="s-off" type="date" value="${v("signOff")}" ${onb?"disabled":""}>
       <label class="inline"><input type="checkbox" id="s-onboard" ${onb?"checked":""}> On board now</label></div>
@@ -662,7 +662,7 @@ function openProfile(){
     <div class="field full"><label for="p-name">Full name</label><input id="p-name" value="${v("name")}"></div>
     <div class="field"><label for="p-rank">Current rank</label><input id="p-rank" list="dl-prank" value="${v("rank")}">${datalist("dl-prank",RANKS)}</div>
     <div class="field"><label for="p-crew">Crew ID</label><input id="p-crew" value="${v("crewId")}"></div>
-    <div class="field full"><label for="p-op">Current operator / company</label><input id="p-op" value="${v("operator")}" placeholder="e.g. Golden Island"><div class="hint">Used for “Time with operator” in Sea service.</div></div>
+    <div class="field full"><label for="p-op">Current operator / company</label><input id="p-op" value="${v("operator")}" placeholder="e.g. ABC Shipping"><div class="hint">Used for “Time with operator” in Sea service.</div></div>
     <div class="field"><label for="p-dob">Date of birth</label><input id="p-dob" type="date" value="${v("dob")}"></div>
     <div class="field"><label for="p-sn">Seaman Reg. No.</label><input id="p-sn" value="${v("seamanNo")}"></div>
     <div class="field full"><label for="p-srb">Seaman Book No.</label><input id="p-srb" value="${v("srbNo")}"></div>
