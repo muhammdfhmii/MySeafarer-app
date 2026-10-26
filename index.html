@@ -1,0 +1,761 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#12325B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MySeafarer">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px/1.45 system-ui,-apple-system,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>MySeafarer</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Source+Sans+3:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: chart-room ledger — navy header band, summary strip, grouped certificate rows, slide-in record drawer */
+:root{
+  --bg:#F6F9FD; --surface:#FFFFFF; --ink:#0F2440; --muted:#5A6B85; --line:#DCE5F1;
+  --navy:#12325B; --blue:#2563B0; --blue-soft:#E7F0FB; --on-navy:#FFFFFF;
+  --ok:#1E6B47; --ok-bg:#E3F3EA; --due:#8A5600; --due-bg:#FFF2D6; --bad:#A3202F; --bad-bg:#FBE4E7; --life:#4E5F7A; --life-bg:#EEF2F8;
+  --shadow:0 10px 30px rgba(18,50,91,.12);
+  --f-display:"Archivo",system-ui,sans-serif; --f-body:"Source Sans 3",system-ui,sans-serif; --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0B1626; --surface:#122238; --ink:#E6EEF8; --muted:#97A8C0; --line:#24395A;
+  --navy:#0E2A4D; --blue:#6FA4E8; --blue-soft:#18304F; --on-navy:#FFFFFF;
+  --ok:#7FD3A6; --ok-bg:#163A2A; --due:#F2C46B; --due-bg:#3A2D12; --bad:#F29AA5; --bad-bg:#40191F; --life:#B3C1D6; --life-bg:#1B2C45;
+  --shadow:0 10px 30px rgba(0,0,0,.45); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0B1626; --surface:#122238; --ink:#E6EEF8; --muted:#97A8C0; --line:#24395A;
+  --navy:#0E2A4D; --blue:#6FA4E8; --blue-soft:#18304F; --on-navy:#FFFFFF;
+  --ok:#7FD3A6; --ok-bg:#163A2A; --due:#F2C46B; --due-bg:#3A2D12; --bad:#F29AA5; --bad-bg:#40191F; --life:#B3C1D6; --life-bg:#1B2C45;
+  --shadow:0 10px 30px rgba(0,0,0,.45); color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45}
+.wrap{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+
+header.band{background:var(--navy);color:var(--on-navy)}
+header.band .wrap{padding-block:22px 26px;display:flex;flex-wrap:wrap;gap:16px 24px;align-items:flex-end;justify-content:space-between}
+.eyebrow{font-family:var(--f-display);font-size:11px;letter-spacing:.14em;text-transform:uppercase;opacity:.75;font-weight:600}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(22px,4vw,30px);margin:4px 0 6px;letter-spacing:-.01em;text-wrap:balance}
+.holder-meta{display:flex;flex-wrap:wrap;gap:4px 18px;font-size:13px;opacity:.9}
+.holder-meta b{font-weight:600}
+.mono{font-family:var(--f-mono);font-size:.92em}
+.btn{display:inline-flex;align-items:center;gap:6px;border-radius:8px;padding:9px 14px;border:1px solid var(--line);background:var(--surface);font-weight:600;font-size:14px}
+.btn:hover{border-color:var(--blue)}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+:root[data-theme="dark"] .btn.primary{color:#0B1626}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .btn.primary{color:#0B1626}}
+.btn.ghost-on-navy{background:transparent;color:var(--on-navy);border-color:rgba(255,255,255,.35)}
+.btn.ghost-on-navy:hover{border-color:#fff}
+.btn.danger{color:var(--bad);border-color:var(--bad)}
+.btn.sm{padding:6px 10px;font-size:13px}
+.head-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+.summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:-14px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;text-align:left;box-shadow:var(--shadow)}
+button.tile{cursor:pointer}
+button.tile[aria-pressed="true"]{outline:2px solid var(--blue)}
+.tile .n{font-family:var(--f-display);font-size:28px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.tile .l{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:600}
+.tile.due .n{color:var(--due)} .tile.bad .n{color:var(--bad)} .tile.ok .n{color:var(--ok)}
+@media (max-width:640px){.summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.alert{margin-top:18px;border:1px solid var(--due);background:var(--due-bg);border-radius:10px;padding:12px 14px;display:flex;gap:12px;align-items:flex-start}
+.alert.bad{border-color:var(--bad);background:var(--bad-bg)}
+.alert .dot{flex:none;width:10px;height:10px;border-radius:50%;background:var(--due);margin-top:6px}
+.alert.bad .dot{background:var(--bad)}
+.alert h3{margin:0 0 4px;font-family:var(--f-display);font-size:15px}
+.alert ul{margin:0;padding-left:18px}
+.alert li{margin:2px 0}
+.alert a{color:inherit;font-weight:600}
+
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin:22px 0 10px}
+.tabs{display:flex;gap:4px;background:var(--blue-soft);padding:4px;border-radius:10px}
+.tabs button{border:0;background:transparent;padding:7px 14px;border-radius:7px;font-weight:600;color:var(--muted)}
+.tabs button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(18,50,91,.15)}
+.search{flex:1 1 220px;max-width:340px;position:relative}
+.search input{width:100%;padding:9px 12px 9px 34px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:var(--muted)}
+
+.group{margin:18px 0 6px}
+.group h2{font-family:var(--f-display);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);margin:0 0 8px;display:flex;gap:8px;align-items:center}
+.group h2 .count{color:var(--muted);font-weight:500;letter-spacing:0}
+.list{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.row{display:grid;grid-template-columns:minmax(0,1fr) 128px 120px auto;gap:12px;align-items:center;padding:12px 16px;border-top:1px solid var(--line)}
+.row:first-child{border-top:0}
+.row .name{font-weight:600;min-width:0}
+.row .name button{all:unset;cursor:pointer}
+.row .name button:hover{color:var(--blue)}
+.row .name button:focus-visible{outline:2px solid var(--blue)}
+.row .sub{font-size:12.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:2px 12px;margin-top:2px;min-width:0;overflow-wrap:anywhere}
+.row .exp{font-variant-numeric:tabular-nums;font-size:13.5px}
+.row .exp small{display:block;color:var(--muted);font-size:12px}
+.row .acts{display:flex;gap:6px;justify-content:flex-end}
+.iconbtn{width:34px;height:34px;display:inline-grid;place-items:center;border-radius:8px;border:1px solid var(--line);background:var(--surface)}
+.iconbtn:hover{border-color:var(--blue)}
+.iconbtn svg{width:16px;height:16px;stroke:var(--ink);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.iconbtn[disabled]{opacity:.35;cursor:not-allowed}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:4px 9px;border-radius:999px;white-space:nowrap}
+.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.pill.valid{color:var(--ok);background:var(--ok-bg)} .pill.due{color:var(--due);background:var(--due-bg)} .pill.expired{color:var(--bad);background:var(--bad-bg)} .pill.life{color:var(--life);background:var(--life-bg)}
+@media (max-width:720px){
+  .row{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"n s" "e a"}
+  .row .name{grid-area:n} .row .st{grid-area:s;justify-self:end} .row .exp{grid-area:e} .row .acts{grid-area:a}
+}
+.empty{padding:36px 20px;text-align:center;color:var(--muted)}
+.empty strong{display:block;color:var(--ink);font-family:var(--f-display);font-size:17px;margin-bottom:4px}
+
+/* checklist */
+.check-row{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:12px;align-items:center;padding:11px 16px;border-top:1px solid var(--line)}
+.check-row:first-child{border-top:0}
+.tick{width:22px;height:22px;border-radius:6px;border:1.5px solid var(--line);display:grid;place-items:center}
+.tick.on{background:var(--blue);border-color:var(--blue)}
+.tick svg{width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2.5}
+.ref{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.progress{height:6px;background:var(--blue-soft);border-radius:4px;overflow:hidden;margin-top:6px}
+.progress i{display:block;height:100%;background:var(--blue)}
+
+/* drawer */
+.scrim{position:fixed;inset:0;background:rgba(8,20,38,.45);z-index:40}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(560px,100%);background:var(--surface);z-index:41;box-shadow:var(--shadow);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);padding-right:env(safe-area-inset-right,0px)}
+.drawer-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--line)}
+.drawer-head h3{margin:0;font-family:var(--f-display);font-size:18px}
+.drawer-body{flex:1;overflow:auto;padding:18px 20px}
+.drawer-foot{padding:14px 20px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:space-between;flex-wrap:wrap}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form .full{grid-column:1/-1}
+.field label{display:block;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.field input,.field select,.field textarea{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+.field textarea{min-height:64px;resize:vertical}
+.field .hint{font-size:12px;color:var(--muted);margin-top:4px}
+.inline{display:flex;align-items:center;gap:8px;font-size:14px;margin-top:6px}
+.drop{border:1.5px dashed var(--line);border-radius:10px;padding:16px;text-align:center;background:var(--bg)}
+.drop.over{border-color:var(--blue);background:var(--blue-soft)}
+.drop .file{font-weight:600;overflow-wrap:anywhere}
+@media (max-width:480px){.form{grid-template-columns:1fr}}
+
+.detail dl{display:grid;grid-template-columns:140px minmax(0,1fr);gap:8px 14px;margin:0 0 16px}
+.detail dt{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding-top:2px}
+.detail dd{margin:0;overflow-wrap:anywhere}
+.preview{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--bg)}
+.preview iframe{width:100%;height:60vh;border:0;display:block;background:#fff}
+.preview img{display:block;width:100%}
+.preview .none{padding:28px;text-align:center;color:var(--muted)}
+.confirm{margin-top:12px;border:1px solid var(--bad);background:var(--bad-bg);border-radius:8px;padding:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+
+.sea-tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:4px}
+@media (max-width:640px){.sea-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.tile .n small{font-size:14px;font-weight:600;color:var(--muted);margin-left:2px}
+.tile .x{font-size:12.5px;color:var(--muted);margin-top:2px}
+.ranks{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 4px}
+.chip{background:var(--blue-soft);color:var(--ink);border-radius:999px;padding:5px 12px;font-size:13px;font-weight:600}
+.chip span{color:var(--muted);font-weight:500;margin-left:6px;font-variant-numeric:tabular-nums}
+.srow{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) 120px auto;gap:12px;align-items:center;padding:12px 16px;border-top:1px solid var(--line)}
+.srow:first-child{border-top:0}
+.srow .v{font-weight:600}
+.srow .sub{font-size:12.5px;color:var(--muted);overflow-wrap:anywhere}
+.srow .dur{font-family:var(--f-display);font-weight:700;font-variant-numeric:tabular-nums;text-align:right}
+.srow .dur small{display:block;font-family:var(--f-body);font-weight:500;font-size:12px;color:var(--muted)}
+.onboard{color:var(--ok);font-weight:700}
+@media (max-width:720px){.srow{grid-template-columns:minmax(0,1fr) auto}.srow .dates{grid-column:1/2}.srow .dur{text-align:left}}
+.brand-wrap{display:flex;gap:16px;align-items:center;min-width:0}
+.logo{width:64px;height:64px;border-radius:14px;flex:none;box-shadow:0 0 0 2px rgba(255,255,255,.25)}
+@media (max-width:480px){.logo{width:48px;height:48px;border-radius:11px}}
+.custom-tag{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--blue);margin-left:6px}
+.cc{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--blue);border-radius:12px;padding:16px 18px;margin:4px 0 18px;box-shadow:var(--shadow)}
+.empty-cc{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
+.cc-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
+.cc-eyebrow{font-family:var(--f-display);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);font-weight:700}
+.cc-ship{font-family:var(--f-display);font-size:22px;font-weight:800;letter-spacing:-.01em}
+.cc .sub{font-size:12.5px;color:var(--muted)}
+.cc-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:14px}
+.cc-grid.pay{grid-template-columns:repeat(3,minmax(0,1fr));padding-top:12px;border-top:1px solid var(--line)}
+@media (max-width:640px){.cc-grid,.cc-grid.pay{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.cc-grid .l{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.cc-grid .v{font-family:var(--f-display);font-size:18px;font-weight:700;font-variant-numeric:tabular-nums}
+.cc-grid .v small{font-family:var(--f-body);font-size:12px;font-weight:500;color:var(--muted)}
+.cc-grid .v.warn{color:var(--due)}
+.cc-bar{height:8px;background:var(--blue-soft);border-radius:5px;overflow:hidden;margin-top:14px}
+.cc-bar i{display:block;height:100%;background:var(--blue)}
+.cc-notes{margin-top:12px;padding:10px 12px;background:var(--bg);border-radius:8px;font-size:13.5px;white-space:pre-wrap}
+.sea-grid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:820px){.sea-grid{grid-template-columns:1fr}}
+.calc{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.calc table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.calc th,.calc td{padding:10px 14px;border-top:1px solid var(--line);text-align:left;font-size:14px;vertical-align:top}
+.calc thead th{background:var(--navy);color:var(--on-navy);border-top:0;font-family:var(--f-display);font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+.calc tbody th{font-weight:600;color:var(--ink);background:var(--blue-soft);width:52%}
+.calc.side tbody th{width:40%}
+.calc td{font-weight:600}
+.calc td small{color:var(--muted);font-weight:500}
+.calc .c{text-align:center}
+.calc tbody tr:first-child th,.calc tbody tr:first-child td{border-top:0}
+.chk-ok{color:var(--ok)} .chk-bad{color:var(--bad)}
+.ctable-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.ctable{width:100%;border-collapse:collapse;min-width:880px;font-size:13.5px;font-variant-numeric:tabular-nums}
+.ctable th{background:var(--navy);color:var(--on-navy);font-family:var(--f-display);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;padding:10px 8px;text-align:center;line-height:1.25}
+.ctable th span{font-weight:500;opacity:.8;text-transform:none;letter-spacing:0}
+.ctable td{padding:8px;border-top:1px solid var(--line);vertical-align:middle}
+.ctable tr:nth-child(even) td{background:var(--bg)}
+.ctable tr.onb td{background:var(--ok-bg)}
+.ctable .c{text-align:center}
+.ctable .lnk{all:unset;cursor:pointer;color:var(--blue);font-weight:600}
+.ctable .lnk:focus-visible{outline:2px solid var(--blue)}
+.ctable .nw{font-size:11px;color:var(--muted)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.net{align-self:center;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:rgba(255,255,255,.16);color:#fff;padding:5px 10px;border-radius:999px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 16px;border-radius:8px;z-index:60;box-shadow:var(--shadow);font-weight:600;max-width:calc(100% - 32px)}
+.note{font-size:12.5px;color:var(--muted);margin:28px 0 40px;text-align:center}
+@media (prefers-reduced-motion:no-preference){.drawer{animation:slide .22s ease-out}@keyframes slide{from{transform:translateX(24px);opacity:.6}}}
+</style>
+
+</head>
+<body>
+<header class="band">
+  <div class="wrap">
+    <div class="brand-wrap">
+      <img class="logo" src="icons/icon-192.png" alt="MySeafarer logo" width="64" height="64">
+      <div>
+      <div class="eyebrow">MySeafarer · Certificates &amp; Sea Service</div>
+      <h1 id="holderName">Certificate holder</h1>
+      <div class="holder-meta" id="holderMeta"><span>Loading profile…</span></div>
+      </div>
+    </div>
+    <div class="head-actions">
+      <span class="net" id="netBadge" hidden>Offline</span>
+      <button class="btn ghost-on-navy" id="backupBtn" type="button">Backup</button>
+      <button class="btn ghost-on-navy" id="editProfileBtn" type="button">Edit profile</button>
+      <button class="btn primary" id="addBtn" type="button">+ Add certificate</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div id="certTop">
+  <section class="summary" aria-label="Summary">
+    <button class="tile" type="button" data-filter="all" aria-pressed="true"><div class="n" id="sTotal">0</div><div class="l">Certificates</div></button>
+    <button class="tile ok" type="button" data-filter="valid" aria-pressed="false"><div class="n" id="sValid">0</div><div class="l">Valid</div></button>
+    <button class="tile due" type="button" data-filter="due" aria-pressed="false"><div class="n" id="sDue">0</div><div class="l">Renew ≤ 6 months</div></button>
+    <button class="tile bad" type="button" data-filter="expired" aria-pressed="false"><div class="n" id="sExp">0</div><div class="l">Expired</div></button>
+  </section>
+
+  <div id="alerts"></div>
+  </div>
+
+  <div class="toolbar">
+    <div class="tabs" role="tablist">
+      <button role="tab" id="tabCerts" aria-selected="true" type="button">My certificates</button>
+      <button role="tab" id="tabSea" aria-selected="false" type="button">Sea service</button>
+      <button role="tab" id="tabCheck" aria-selected="false" type="button">STCW checklist</button>
+    </div>
+    <label class="search"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="Search name, number, issuer…" aria-label="Search certificates"></label>
+  </div>
+
+  <section id="viewCerts"></section>
+  <section id="viewSea" hidden></section>
+  <section id="viewCheck" hidden></section>
+
+  <p class="note" id="noteCert">Renewal alerts appear here 6 months (183 days) before a certificate's expiry date. Status updates from today's date every time you open MySeafarer. Everything is saved on this device and works without internet. Tap Backup now and then to keep a copy.</p>
+</main>
+
+<div id="layer"></div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const SIX_MONTHS = 183, MD = 30.44;
+const CATS = ["Competency & Endorsements","Medical Fitness","Basic Safety","Security","Tanker","Navigation & Bridge","Radio","Other Ship Types","Engine","Additional Training"];
+const CATALOG = [
+  ["coc-oow","Certificate of Competency – Officer in Charge of a Navigational Watch","II/1","Competency & Endorsements"],
+  ["seaman-book","Seaman's Record Book (Discharge Book)","—","Competency & Endorsements"],
+  ["coc-cm","Certificate of Competency – Chief Mate","II/2","Competency & Endorsements"],
+  ["coc-master","Certificate of Competency – Master","II/2","Competency & Endorsements"],
+  ["coe-deck","Certificate of Endorsement (flag state) – Deck","I/10","Competency & Endorsements"],
+  ["coe-radio","Certificate of Endorsement (flag state) – GMDSS","I/10","Competency & Endorsements"],
+  ["tanker-end","Tanker Endorsement","V/1-1 / V/1-2","Competency & Endorsements"],
+  ["medical","Seafarer's Medical Certificate","A-I/9 · MLC 2006","Medical Fitness"],
+  ["bt","Basic Training (PST, FPFF, EFA, PSSR)","VI/1","Basic Safety"],
+  ["bt-update","Basic Training – Refresher / Updating","A-VI/1","Basic Safety"],
+  ["pscrb","Proficiency in Survival Craft & Rescue Boats","VI/2-1","Basic Safety"],
+  ["frb","Fast Rescue Boats","VI/2-2","Basic Safety"],
+  ["aff","Advanced Fire Fighting","VI/3","Basic Safety"],
+  ["mfa","Medical First Aid","VI/4-1","Basic Safety"],
+  ["mc","Medical Care","VI/4-2","Basic Safety"],
+  ["sa","Security Awareness","VI/6","Security"],
+  ["sdd","Designated Security Duties","VI/6","Security"],
+  ["sso","Ship Security Officer","VI/5","Security"],
+  ["boctt","Basic Training – Oil & Chemical Tanker Cargo Operations","V/1-1","Tanker"],
+  ["aot","Advanced Training – Oil Tanker Cargo Operations","V/1-1","Tanker"],
+  ["act","Advanced Training – Chemical Tanker Cargo Operations","V/1-1","Tanker"],
+  ["blgt","Basic Training – Liquefied Gas Tanker Cargo Operations","V/1-2","Tanker"],
+  ["algt","Advanced Training – Liquefied Gas Tanker Cargo Operations","V/1-2","Tanker"],
+  ["radar","Radar Navigation & Radar Plotting","II/1","Navigation & Bridge"],
+  ["arpa","Automatic Radar Plotting Aids (ARPA)","II/1","Navigation & Bridge"],
+  ["ecdis","ECDIS – Generic","II/1 · II/2","Navigation & Bridge"],
+  ["ecdis-ts","ECDIS – Type-Specific","ISM 6.3","Navigation & Bridge"],
+  ["ena","Electronic Navigational Aids","II/1","Navigation & Bridge"],
+  ["brm","Bridge Resource Management","II/1 · II/2","Navigation & Bridge"],
+  ["shiphandling","Ship Handling & Manoeuvring","II/2","Navigation & Bridge"],
+  ["goc","GMDSS General Operator's Certificate","IV/2","Radio"],
+  ["roc","GMDSS Restricted Operator's Certificate","IV/2","Radio"],
+  ["igf-b","IGF Code – Basic Training (gas / low-flashpoint fuels)","V/3","Other Ship Types"],
+  ["igf-a","IGF Code – Advanced Training","V/3","Other Ship Types"],
+  ["pax","Passenger Ships – Crowd & Crisis Management","V/2","Other Ship Types"],
+  ["polar-b","Polar Waters – Basic Training","V/4","Other Ship Types"],
+  ["polar-a","Polar Waters – Advanced Training","V/4","Other Ship Types"],
+  ["erm","Engine Room Resource Management","III/1 · III/2","Engine"],
+  ["hv","High Voltage – Operational / Management","III/1 · III/6","Engine"],
+  ["sash","Prevention of Violence & Harassment (SASH)","MSC.560(108)","Additional Training"],
+  ["methanol","Handling of Methanol as Fuel","MSC.1/Circ.1621","Additional Training"]
+].map(([key,name,reg,cat])=>({key,name,reg,cat}));
+const VTYPES=["OIL/CHEMICAL TANKER","OIL TANKER","CHEMICAL TANKER","BUNKER TANKER","LPG TANKER","LNG TANKER","CONTAINER SHIP","BULK CARRIER","GENERAL CARGO","OFFSHORE / SUPPLY","TUG","OTHER"];
+const RANKS=["DECK CADET","ORDINARY SEAMAN","ABLE SEAMAN","3RD OFFICER","2ND OFFICER","CHIEF OFFICER","MASTER","ENGINE CADET","4TH ENGINEER","3RD ENGINEER","2ND ENGINEER","CHIEF ENGINEER"];
+
+let db=null, uid=null, col=null;
+let certs=[], profile={}, service=[], courses=[];
+let filter="all", query="", tab="certs";
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const base=()=>`data/users/${uid}`;
+
+
+function today(){const d=new Date();d.setHours(0,0,0,0);return d}
+function todayISO(){const d=today();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
+function parseD(s){if(!s)return null;const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)}
+function fmtD(s){const d=parseD(s);if(!d)return "—";return d.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"})}
+function statusOf(c){
+  const e=parseD(c.expiryDate); if(!e) return {k:"life",label:"No expiry",days:null};
+  const days=Math.round((e-today())/86400000);
+  if(days<0) return {k:"expired",label:"Expired",days};
+  if(days<=SIX_MONTHS) return {k:"due",label:"Renew soon",days};
+  return {k:"valid",label:"Valid",days};
+}
+function leftText(st){
+  if(st.days==null) return "Lifetime";
+  if(st.days<0) return `Expired ${Math.abs(st.days).toLocaleString()} days ago`;
+  if(st.days===0) return "Expires today";
+  return st.days<60?`${st.days} days left`:`${Math.floor(st.days/30.44)} months left`;
+}
+function toast(msg){const t=$("#toast");t.textContent=msg;t.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>t.hidden=true,3000)}
+function errMsg(e){const c=e&&e.code;if(c==="permission_denied"||c==="not_granted"||c==="forbidden")return "You have view-only access. Ask the owner to give you edit access.";return (e&&e.message)||"please try again."}
+function datalist(id,list){return `<datalist id="${id}">${[...new Set(list)].filter(Boolean).map(x=>`<option value="${esc(x)}"></option>`).join("")}</datalist>`}
+function allItems(){return CATALOG.concat(courses.map(c=>({key:"custom:"+c.id,id:c.id,name:c.name||"Course",reg:c.reg||"",cat:c.cat||"Additional Training",custom:true})))}
+function itemByKey(k){return allItems().find(i=>i.key===k)}
+function allCats(){const extra=[...new Set(certs.map(c=>c.category).concat(courses.map(c=>c.cat)).filter(x=>x&&!CATS.includes(x)&&x!=="Other"))];return CATS.concat(extra)}
+const ICON={
+  edit:'<svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="m14 6 4 4"/></svg>',
+  tick:'<svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg>'
+};
+
+/* ---------- header & certificates ---------- */
+function renderHeader(){
+  $("#holderName").textContent = profile.name || "Welcome aboard";
+  const bits=[];
+  if(profile.rank) bits.push(`<span><b>Rank</b> ${esc(profile.rank)}</span>`);
+  if(profile.operator) bits.push(`<span><b>Operator</b> ${esc(profile.operator)}</span>`);
+  if(profile.seamanNo) bits.push(`<span><b>Seaman Reg.</b> <span class="mono">${esc(profile.seamanNo)}</span></span>`);
+  if(profile.srbNo) bits.push(`<span><b>Seaman Book</b> <span class="mono">${esc(profile.srbNo)}</span></span>`);
+  $("#holderMeta").innerHTML = bits.join("") || "<span>Tap Edit profile to add your name, rank and operator. Have a backup file? Tap Backup to restore it.</span>";
+}
+function renderSummary(){
+  const st=certs.map(statusOf);
+  $("#sTotal").textContent=certs.length;
+  $("#sValid").textContent=st.filter(s=>s.k==="valid").length;
+  $("#sDue").textContent=st.filter(s=>s.k==="due").length;
+  $("#sExp").textContent=st.filter(s=>s.k==="expired").length;
+  document.querySelectorAll(".tile[data-filter]").forEach(t=>t.setAttribute("aria-pressed",String(t.dataset.filter===filter)));
+  const due=certs.filter(c=>statusOf(c).k==="due").sort((a,b)=>a.expiryDate.localeCompare(b.expiryDate));
+  const exp=certs.filter(c=>statusOf(c).k==="expired");
+  let h="";
+  if(due.length) h+=`<div class="alert" role="status"><span class="dot"></span><div><h3>${due.length} certificate${due.length>1?"s":""} due for renewal within 6 months</h3><ul>${due.map(c=>`<li><a href="#" data-open="${esc(c.id)}">${esc(c.name)}</a> — expires ${esc(fmtD(c.expiryDate))} (${esc(leftText(statusOf(c)))})</li>`).join("")}</ul></div></div>`;
+  if(exp.length) h+=`<div class="alert bad"><span class="dot"></span><div><h3>${exp.length} expired</h3><ul>${exp.map(c=>`<li><a href="#" data-open="${esc(c.id)}">${esc(c.name)}</a> — expired ${esc(fmtD(c.expiryDate))}</li>`).join("")}</ul></div></div>`;
+  $("#alerts").innerHTML=h;
+}
+function matches(c){
+  if(filter!=="all" && statusOf(c).k!==filter) return false;
+  if(!query) return true;
+  return [c.name,c.certNo,c.serialNo,c.issuedBy,c.stcwReg,c.remarks,c.category].join(" ").toLowerCase().includes(query);
+}
+function renderCerts(){
+  const el=$("#viewCerts");
+  if(!certs.length){el.innerHTML=`<div class="list"><div class="empty"><strong>No certificates yet</strong>Add each certificate with its number and expiry date, and MySeafarer will warn you 6 months before it expires.<div style="margin-top:14px"><button class="btn primary" type="button" data-cadd-cert="1">+ Add certificate</button></div></div></div>`;return}
+  const shown=certs.filter(matches);
+  if(!shown.length){el.innerHTML=`<div class="list"><div class="empty"><strong>Nothing matches</strong>Try another search or tap “Certificates” to show everything.</div></div>`;return}
+  let h="";const cats=allCats();
+  for(const cat of cats.concat(["Other"])){
+    const rows=shown.filter(c=>(cats.includes(c.category)?c.category:"Other")===cat).sort((a,b)=>(a.order??999)-(b.order??999)||a.name.localeCompare(b.name));
+    if(!rows.length) continue;
+    h+=`<div class="group"><h2>${esc(cat)} <span class="count">${rows.length}</span></h2><div class="list">`;
+    for(const c of rows){const st=statusOf(c);
+      h+=`<div class="row">
+        <div class="name"><button type="button" data-open="${esc(c.id)}">${esc(c.name)}</button>
+          <div class="sub">${c.certNo?`<span class="mono">${esc(c.certNo)}</span>`:""}${c.issuedBy?`<span>${esc(c.issuedBy)}</span>`:""}${c.stcwReg?`<span>STCW ${esc(c.stcwReg)}</span>`:""}</div></div>
+        <div class="exp">${c.expiryDate?esc(fmtD(c.expiryDate)):"No expiry"}<small>${esc(leftText(st))}</small></div>
+        <div class="st"><span class="pill ${st.k}">${st.label}</span></div>
+        <div class="acts"><button class="iconbtn" type="button" title="Edit" aria-label="Edit ${esc(c.name)}" data-edit="${esc(c.id)}">${ICON.edit}</button></div></div>`;}
+    h+=`</div></div>`;
+  }
+  el.innerHTML=h;
+}
+function renderCheck(){
+  const held=new Map();
+  for(const c of certs){ if(c.stcw){ const cur=held.get(c.stcw); if(!cur || (c.expiryDate||"9999")>(cur.expiryDate||"9999")) held.set(c.stcw,c);} }
+  const ALL=allItems(), total=ALL.length, have=ALL.filter(i=>held.has(i.key)).length;
+  let h=`<div class="list" style="padding:14px 16px"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center"><b>${have} of ${total} courses held</b><button class="btn sm" type="button" data-kadd="1">+ Add course to list</button></div><div class="progress"><i style="width:${(total?have/total*100:0).toFixed(1)}%"></i></div><div class="ref" style="margin-top:6px">Standard STCW list plus your own courses · not every course applies to every rank</div></div>`;
+  for(const cat of allCats().concat(["Other"])){
+    let items=ALL.filter(i=>i.cat===cat);
+    if(query) items=items.filter(i=>(i.name+" "+i.reg).toLowerCase().includes(query));
+    if(!items.length) continue;
+    h+=`<div class="group"><h2>${esc(cat)} <span class="count">${items.filter(i=>held.has(i.key)).length}/${items.length}</span></h2><div class="list">`;
+    for(const i of items){const c=held.get(i.key), st=c?statusOf(c):null;
+      h+=`<div class="check-row"><span class="tick ${c?"on":""}">${c?ICON.tick:""}</span>
+        <div style="min-width:0"><div style="font-weight:600">${esc(i.name)}${i.custom?'<span class="custom-tag">Custom</span>':""}</div><div class="ref">${i.reg?"STCW "+esc(i.reg):""}${c&&c.certNo?` · ${esc(c.certNo)}`:""}</div></div>
+        <div style="display:flex;gap:6px;align-items:center">${c?`<span class="pill ${st.k}">${st.label}</span>`:`<button class="btn sm" type="button" data-addkey="${esc(i.key)}">+ Add</button>`}${i.custom?`<button class="iconbtn" type="button" title="Edit course" aria-label="Edit course ${esc(i.name)}" data-kedit="${esc(i.id)}">${ICON.edit}</button>`:""}</div></div>`;}
+    h+=`</div></div>`;
+  }
+  $("#viewCheck").innerHTML=h;
+}
+
+/* ---------- sea time ---------- */
+function seaDays(r){const a=parseD(r.signOn);if(!a)return 0;const b=r.signOff?parseD(r.signOff):today();return Math.max(0,Math.round((b-a)/86400000))}
+const months=d=>d/MD;
+const f2=n=>n.toFixed(2);
+const up=s=>String(s||"").toUpperCase();
+const isWatch=r=>!/cadet|trainee/i.test(r||"");
+const isTanker=t=>/tanker/i.test(t||"");
+function seaStats(){
+  const recs=service.slice().sort((a,b)=>(a.signOn||"").localeCompare(b.signOn||""));
+  const cur=recs.filter(r=>!r.signOff).sort((a,b)=>b.signOn.localeCompare(a.signOn))[0];
+  const latest=cur||recs[recs.length-1];
+  const rank=up(profile.rank||(latest&&latest.rank));
+  const vtype=up(latest&&latest.vesselType);
+  const sum=fn=>recs.filter(fn).reduce((n,r)=>n+seaDays(r),0);
+  const opRecs=recs.filter(r=>r.withOperator);
+  const checks=[];
+  recs.forEach(r=>{if(r.signOff&&r.signOff<r.signOn)checks.push(`${r.vessel}: sign-off is before sign-on`);if(r.signOn>todayISO())checks.push(`${r.vessel}: sign-on date is in the future`)});
+  if(recs.filter(r=>!r.signOff).length>1) checks.push("More than one contract is marked on board");
+  for(let i=1;i<recs.length;i++){const p=recs[i-1],c=recs[i];if((p.signOff||todayISO())>c.signOn)checks.push(`${p.vessel} and ${c.vessel} overlap`)}
+  return {recs,cur,rank,vtype,
+    op:sum(r=>r.withOperator), inRank:sum(r=>up(r.rank)===rank&&rank), watch:sum(r=>isWatch(r.rank)),
+    type:sum(r=>vtype&&up(r.vesselType)===vtype), tankers:sum(r=>isTanker(r.vesselType)), total:sum(()=>true),
+    firstOp:opRecs.length?opRecs[0].signOn:"", checks};
+}
+function renderSea(){
+  const s=seaStats(), op=up(profile.operator)||"OPERATOR";
+  const line=(label,days)=>`<tr><th scope="row">${label}</th><td>${f2(months(days))} <small>Months</small></td><td>${f2(months(days)/12)} <small>Years</small></td></tr>`;
+  let h=contractCard(s.cur)+`<div class="sea-grid">
+    <div class="calc"><table>
+      <thead><tr><th>Report date</th><th colspan="2" class="c">${esc(fmtD(todayISO()))}</th></tr></thead>
+      <tbody>
+        ${line(`Time with operator (${esc(op)})`,s.op)}
+        ${line(`Time in rank (${esc(s.rank||"—")})`,s.inRank)}
+        ${line("Time on watch (watchkeeping ranks)",s.watch)}
+        ${line(`Time on this tanker type (${esc(s.vtype||"—")})`,s.type)}
+        ${line("Time on all types of tankers",s.tankers)}
+        <tr><th scope="row">Joined this vessel · months on tour</th><td>${s.cur?esc(fmtD(s.cur.signOn)):"Not on board"}</td><td>${s.cur?f2(months(seaDays(s.cur)))+" <small>Months</small>":"—"}</td></tr>
+        <tr><th scope="row">First joined operator</th><td colspan="2" class="c">${s.firstOp?esc(fmtD(s.firstOp)):"—"}</td></tr>
+      </tbody></table></div>
+    <div class="calc side"><table><tbody>
+      <tr><th scope="row">Operator</th><td>${esc(profile.operator||"—")}</td></tr>
+      <tr><th scope="row">Data checks</th><td class="${s.checks.length?"chk-bad":"chk-ok"}">${s.checks.length?s.checks.map(esc).join("<br>"):"All entries OK"}</td></tr>
+      <tr><th scope="row">Full name</th><td>${esc(profile.name||"—")}</td></tr>
+      <tr><th scope="row">Current rank</th><td>${esc(up(profile.rank)||"—")}</td></tr>
+      <tr><th scope="row">Crew ID</th><td>${esc(profile.crewId||"—")}</td></tr>
+      <tr><th scope="row">Total sea time</th><td>${s.total.toLocaleString()} days · ${f2(months(s.total))} months</td></tr>
+    </tbody></table></div>
+  </div>
+  <div class="toolbar" style="margin:20px 0 8px"><b style="font-family:var(--f-display)">Contracts</b><button class="btn primary sm" type="button" data-sadd="1">+ Add contract</button></div>`;
+  let recs=s.recs; if(query) recs=recs.filter(r=>[r.vessel,r.rank,r.vesselType,r.imo,r.remarks].join(" ").toLowerCase().includes(query));
+  if(!s.recs.length) h+=`<div class="list"><div class="empty"><strong>No contracts yet</strong>Add each vessel you served on. Sea time, time in rank and time with your operator are worked out for you.</div></div>`;
+  else if(!recs.length) h+=`<div class="list"><div class="empty"><strong>Nothing matches</strong>Try another search.</div></div>`;
+  else h+=`<div class="ctable-wrap"><table class="ctable"><thead><tr><th>No.</th><th>Ship's name</th><th>Sign-on date</th><th>Sign-off date<br><span>(or on board)</span></th><th>Rank</th><th>Sea time<br><span>(days)</span></th><th>Sea time<br><span>(months)</span></th><th>Fleet / vessel type</th><th>With operator</th><th><span class="sr">Edit</span></th></tr></thead><tbody>${
+    recs.map((r,i)=>{const d=seaDays(r);return `<tr class="${r.signOff?"":"onb"}">
+      <td class="c">${String(s.recs.indexOf(r)+1).padStart(2,"0")}</td>
+      <td><button type="button" class="lnk" data-sedit="${esc(r.id)}">${esc(up(r.vessel))}</button></td>
+      <td class="c">${esc(fmtD(r.signOn))}</td>
+      <td class="c">${r.signOff?esc(fmtD(r.signOff)):'<b class="onboard">ON BOARD</b>'}</td>
+      <td class="c">${esc(up(r.rank))}${isWatch(r.rank)?"":'<div class="nw">not watchkeeping</div>'}</td>
+      <td class="c num">${d} days</td>
+      <td class="c num">${f2(months(d))}</td>
+      <td>${esc(up(r.vesselType))}</td>
+      <td class="c"><b>${r.withOperator?"Y":"N"}</b></td>
+      <td class="c"><button class="iconbtn" type="button" title="Edit" aria-label="Edit ${esc(r.vessel)}" data-sedit="${esc(r.id)}">${ICON.edit}</button></td></tr>`}).join("")
+  }</tbody></table></div>`;
+  h+=`<p class="note">Sea time = sign-off date minus sign-on date (on board: up to today) · 1 month = 30.44 days · Time on watch leaves out cadet and trainee ranks · “With operator” rows count toward time with ${esc(profile.operator||"your operator")}.</p>`;
+  $("#viewSea").innerHTML=h;
+}
+/* ---------- current contract ---------- */
+function addMonths(iso,m){const d=parseD(iso);if(!d||!m)return "";const whole=Math.floor(m),frac=m-whole;const r=new Date(d.getFullYear(),d.getMonth()+whole,d.getDate());if(frac)r.setDate(r.getDate()+Math.round(frac*MD));return `${r.getFullYear()}-${String(r.getMonth()+1).padStart(2,"0")}-${String(r.getDate()).padStart(2,"0")}`}
+const num=v=>{const n=parseFloat(String(v??"").replace(/,/g,""));return isNaN(n)?0:n};
+const money=(n,cur)=>`${esc(cur||"")} ${n.toLocaleString("en-US",{minimumFractionDigits:0,maximumFractionDigits:2})}`.trim();
+function contractCard(cur){
+  if(!cur) return `<div class="cc empty-cc"><div><div class="cc-eyebrow">Current contract</div><b>Not on board</b><div class="sub">Add a contract and tick “On board now” to track its length and pay here.</div></div><button class="btn primary sm" type="button" data-sadd="1">+ Add contract</button></div>`;
+  const k=cur.contract||{};const len=num(k.lengthMonths)+num(k.extensionMonths);
+  const end=addMonths(cur.signOn,len);const onDays=seaDays(cur);
+  const totalDays=end?Math.max(1,Math.round((parseD(end)-parseD(cur.signOn))/86400000)):0;
+  const left=end?Math.round((parseD(end)-today())/86400000):null;
+  const pct=totalDays?Math.min(100,Math.max(0,onDays/totalDays*100)):0;
+  const monthly=num(k.basic)+num(k.fixedOT)+num(k.allowance)+num(k.otherPay);
+  const earned=monthly*months(onDays), full=monthly*len;
+  const has=len||monthly||k.contractNo||k.manning;
+  const parts=[["Basic",k.basic],["Fixed OT",k.fixedOT],["Allowance",k.allowance],["Other",k.otherPay]].filter(x=>num(x[1])).map(x=>x[0]+" "+money(num(x[1]),"")).join(" · ");
+  return `<div class="cc">
+    <div class="cc-top"><div style="min-width:0"><div class="cc-eyebrow">Current contract</div><div class="cc-ship">${esc(up(cur.vessel))}</div>
+      <div class="sub">${esc(up(cur.rank))}${k.manning?" · "+esc(k.manning):""}${k.contractNo?` · Contract <span class="mono">${esc(k.contractNo)}</span>`:""}</div></div>
+      <button class="btn sm" type="button" data-cedit="${esc(cur.id)}">${has?"Edit contract":"+ Add contract details"}</button></div>
+    <div class="cc-grid">
+      <div><div class="l">Signed on</div><div class="v">${esc(fmtD(cur.signOn))}</div></div>
+      <div><div class="l">Contract length</div><div class="v">${len?`${len} month${len===1?"":"s"}`:"—"}${num(k.extensionMonths)?`<small> incl. ${num(k.extensionMonths)} ext.</small>`:""}</div></div>
+      <div><div class="l">Expected sign-off</div><div class="v">${end?esc(fmtD(end)):"—"}</div></div>
+      <div><div class="l">${left!=null&&left<0?"Overdue by":"Days remaining"}</div><div class="v ${left!=null&&left<=30?"warn":""}">${left==null?"—":Math.abs(left)+" days"}</div></div>
+    </div>
+    ${len?`<div class="cc-bar" role="progressbar" aria-label="Contract progress" aria-valuenow="${pct.toFixed(0)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct.toFixed(1)}%"></i></div><div class="sub" style="margin-top:4px">${onDays} days on board · ${pct.toFixed(0)}% of contract</div>`:""}
+    ${monthly?`<div class="cc-grid pay">
+      <div><div class="l">Monthly wage</div><div class="v">${money(monthly,k.currency)}</div><div class="sub">${parts}</div></div>
+      <div><div class="l">Earned so far (est.)</div><div class="v">${money(earned,k.currency)}</div><div class="sub">${f2(months(onDays))} months × monthly wage</div></div>
+      <div><div class="l">Full contract (est.)</div><div class="v">${len?money(full,k.currency):"—"}</div><div class="sub">${k.payDay?"Paid on "+esc(k.payDay):"&nbsp;"}</div></div>
+    </div>`:""}
+    ${k.notes?`<div class="cc-notes">${esc(k.notes)}</div>`:""}
+  </div>`;
+}
+function openContractForm(r){
+  const k=r.contract||{};const v=x=>esc(k[x]??"");
+  openLayer(`<div class="drawer-head"><h3>Contract · ${esc(r.vessel)}</h3><button class="btn sm" type="button" data-close>Cancel</button></div>
+  <form class="drawer-body" novalidate><div class="form">
+    <div class="field"><label for="c-len">Contract length (months)</label><input id="c-len" type="number" min="0" step="0.5" inputmode="decimal" value="${v("lengthMonths")}"></div>
+    <div class="field"><label for="c-ext">Extension (months)</label><input id="c-ext" type="number" min="0" step="0.5" inputmode="decimal" value="${v("extensionMonths")}"></div>
+    <div class="field"><label for="c-no">Contract no.</label><input id="c-no" value="${v("contractNo")}"></div>
+    <div class="field"><label for="c-man">Manning agent / employer</label><input id="c-man" value="${v("manning")}"></div>
+    <div class="field"><label for="c-cur">Currency</label><input id="c-cur" list="dl-cur" value="${esc(k.currency||"SGD")}">${datalist("dl-cur",["SGD","USD","MYR","EUR"])}</div>
+    <div class="field"><label for="c-day">Pay day</label><input id="c-day" value="${v("payDay")}" placeholder="e.g. 7th of the month"></div>
+    <div class="field"><label for="c-basic">Basic wage / month</label><input id="c-basic" inputmode="decimal" value="${v("basic")}"></div>
+    <div class="field"><label for="c-ot">Fixed overtime / month</label><input id="c-ot" inputmode="decimal" value="${v("fixedOT")}"></div>
+    <div class="field"><label for="c-all">Allowances / month</label><input id="c-all" inputmode="decimal" value="${v("allowance")}"></div>
+    <div class="field"><label for="c-oth">Other pay / month</label><input id="c-oth" inputmode="decimal" value="${v("otherPay")}" placeholder="e.g. tanker bonus"></div>
+    <div class="field full"><label for="c-notes">Notes</label><textarea id="c-notes" placeholder="Leave pay, relief plans, crew change port…">${v("notes")}</textarea></div>
+  </div><p class="hint" style="margin-top:12px">Saved on this device only. Nobody else can see your contract and pay.</p></form>
+  <div class="drawer-foot"><span></span><button class="btn primary" type="button" id="saveBtn">Save contract</button></div>`);
+  $("#saveBtn").onclick=async()=>{if(!needDb())return;const btn=$("#saveBtn");btn.disabled=true;
+    const contract={lengthMonths:$("#c-len").value,extensionMonths:$("#c-ext").value,contractNo:$("#c-no").value.trim(),manning:$("#c-man").value.trim(),currency:up($("#c-cur").value.trim()),payDay:$("#c-day").value.trim(),
+      basic:$("#c-basic").value.trim(),fixedOT:$("#c-ot").value.trim(),allowance:$("#c-all").value.trim(),otherPay:$("#c-oth").value.trim(),notes:$("#c-notes").value.trim()};
+    try{await col("service").doc(r.id).update({contract,updatedAt:new Date().toISOString()});closeLayer();toast("Contract saved")}catch(e){btn.disabled=false;toast("Couldn't save: "+errMsg(e))}};
+}
+function renderAll(){renderHeader();renderSummary();renderCerts();renderCheck();renderSea()}
+
+/* ---------- drawers ---------- */
+function closeLayer(){$("#layer").innerHTML="";document.removeEventListener("keydown",escClose)}
+function escClose(e){if(e.key==="Escape")closeLayer()}
+function openLayer(html){$("#layer").innerHTML=`<div class="scrim" data-close></div><aside class="drawer" role="dialog" aria-modal="true">${html}</aside>`;document.addEventListener("keydown",escClose);const f=$("#layer .drawer input, #layer .drawer button");f&&f.focus()}
+function confirmDelete(label,fn){$("#delZone").innerHTML=`<div class="confirm"><span>Delete <b>${esc(label)}</b>? This can't be undone.</span><span style="display:flex;gap:8px"><button class="btn sm" type="button" id="delNo">Keep it</button><button class="btn sm danger" type="button" id="delYes">Delete</button></span></div>`;
+  $("#delNo").onclick=()=>$("#delZone").innerHTML="";$("#delYes").onclick=async()=>{try{await fn();closeLayer();toast("Deleted")}catch(e){toast("Couldn't delete: "+errMsg(e))}}}
+function needDb(){return true}
+
+function openDetail(id){
+  const c=certs.find(x=>x.id===id); if(!c) return; const st=statusOf(c);
+  openLayer(`<div class="drawer-head"><h3>${esc(c.name)}</h3><button class="btn sm" type="button" data-close>Close</button></div>
+  <div class="drawer-body detail">
+    <p style="margin:0 0 14px"><span class="pill ${st.k}">${st.label}</span> <span style="color:var(--muted);font-size:13px;margin-left:6px">${esc(leftText(st))}</span></p>
+    <dl>
+      <dt>Category</dt><dd>${esc(c.category||"—")}</dd>
+      <dt>STCW reg.</dt><dd>${esc(c.stcwReg||"—")}</dd>
+      <dt>Certificate no.</dt><dd class="mono">${esc(c.certNo||"—")}</dd>
+      <dt>Serial no.</dt><dd class="mono">${esc(c.serialNo||"—")}</dd>
+      <dt>Issued by</dt><dd>${esc(c.issuedBy||"—")}</dd>
+      <dt>Date of issue</dt><dd>${esc(fmtD(c.issueDate))}</dd>
+      <dt>Date of expiry</dt><dd>${c.expiryDate?esc(fmtD(c.expiryDate)):"No expiry"}</dd>
+      ${c.expiryDate?`<dt>Renewal alert</dt><dd>From ${esc(fmtD(alertDate(c.expiryDate)))}</dd>`:""}
+      <dt>Remarks</dt><dd>${esc(c.remarks||"—")}</dd>
+    </dl>
+  </div>
+  <div class="drawer-foot"><span></span><button class="btn primary" type="button" data-edit="${esc(c.id)}">Edit</button></div>`);
+}
+function alertDate(exp){const d=parseD(exp);d.setDate(d.getDate()-SIX_MONTHS);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
+
+function openCertForm(c,presetKey){
+  const isNew=!c; c=c||{}; const preset=presetKey?itemByKey(presetKey):null; const v=(k,d="")=>esc(c[k]??d);
+  const opts=`<option value="">Other / not on the list</option>`+allCats().concat(["Other"]).map(cat=>{const it=allItems().filter(i=>i.cat===cat);return it.length?`<optgroup label="${esc(cat)}">${it.map(i=>`<option value="${esc(i.key)}" ${((c.stcw||presetKey)===i.key)?"selected":""}>${esc(i.name)}</option>`).join("")}</optgroup>`:""}).join("");
+  const noExp=!!c.id&&!c.expiryDate;
+  openLayer(`<div class="drawer-head"><h3>${isNew?"Add certificate":"Edit certificate"}</h3><button class="btn sm" type="button" data-close>Cancel</button></div>
+  <form class="drawer-body" novalidate><div class="form">
+    <div class="field full"><label for="f-stcw">Course</label><select id="f-stcw">${opts}</select><div class="hint">Picking a course fills in the category and STCW regulation.</div></div>
+    <div class="field full"><label for="f-name">Certificate name *</label><input id="f-name" value="${v("name",preset?preset.name:"")}"></div>
+    <div class="field"><label for="f-cat">Category</label><input id="f-cat" list="dl-cat" value="${v("category",preset?preset.cat:"Other")}">${datalist("dl-cat",allCats().concat(["Other"]))}</div>
+    <div class="field"><label for="f-reg">STCW reg.</label><input id="f-reg" value="${v("stcwReg",preset?preset.reg:"")}"></div>
+    <div class="field"><label for="f-no">Certificate no.</label><input id="f-no" value="${v("certNo")}"></div>
+    <div class="field"><label for="f-serial">Serial no.</label><input id="f-serial" value="${v("serialNo")}"></div>
+    <div class="field full"><label for="f-by">Issued by</label><input id="f-by" value="${v("issuedBy")}" placeholder="e.g. ALAM / Marine Dept. Malaysia"></div>
+    <div class="field"><label for="f-issue">Date of issue</label><input id="f-issue" type="date" value="${v("issueDate")}"></div>
+    <div class="field"><label for="f-exp">Date of expiry</label><input id="f-exp" type="date" value="${v("expiryDate")}" ${noExp?"disabled":""}>
+      <label class="inline"><input type="checkbox" id="f-noexp" ${noExp?"checked":""}> No expiry date</label></div>
+    <div class="field full"><label for="f-rem">Remarks</label><textarea id="f-rem">${v("remarks")}</textarea></div>
+  </div><div id="delZone"></div></form>
+  <div class="drawer-foot"><div>${isNew?"":`<button class="btn danger" type="button" id="delBtn">Delete</button>`}</div><button class="btn primary" type="button" id="saveBtn">${isNew?"Add certificate":"Save changes"}</button></div>`);
+  $("#f-stcw").addEventListener("change",e=>{const i=itemByKey(e.target.value);if(!i)return;if(!$("#f-name").value)$("#f-name").value=i.name;$("#f-cat").value=i.cat;if(!$("#f-reg").value)$("#f-reg").value=i.reg});
+  $("#f-noexp").addEventListener("change",e=>{$("#f-exp").disabled=e.target.checked;if(e.target.checked)$("#f-exp").value=""});
+  $("#saveBtn").onclick=async()=>{
+    const name=$("#f-name").value.trim(); if(!name){$("#f-name").focus();toast("Please enter the certificate name.");return}
+    if(!needDb())return; const btn=$("#saveBtn");btn.disabled=true;
+    const body={name,stcw:$("#f-stcw").value,category:$("#f-cat").value.trim()||"Other",stcwReg:$("#f-reg").value.trim(),certNo:$("#f-no").value.trim(),serialNo:$("#f-serial").value.trim(),
+      issuedBy:$("#f-by").value.trim(),issueDate:$("#f-issue").value,expiryDate:$("#f-noexp").checked?"":$("#f-exp").value,remarks:$("#f-rem").value.trim(),order:c.order??999,updatedAt:new Date().toISOString()};
+    try{await (c.id?col("certs").doc(c.id):col("certs").doc()).set(body);closeLayer();toast(c.id?"Changes saved":"Certificate added")}catch(e){btn.disabled=false;toast("Couldn't save: "+errMsg(e))}};
+  const del=$("#delBtn");if(del)del.onclick=()=>confirmDelete(c.name,()=>col("certs").doc(c.id).delete());
+}
+function openCourseForm(c){
+  const isNew=!c;c=c||{};
+  openLayer(`<div class="drawer-head"><h3>${isNew?"Add course to checklist":"Edit course"}</h3><button class="btn sm" type="button" data-close>Cancel</button></div>
+  <form class="drawer-body" novalidate><div class="form">
+    <div class="field full"><label for="k-name">Course name *</label><input id="k-name" value="${esc(c.name||"")}" placeholder="e.g. Ship Security Officer"></div>
+    <div class="field"><label for="k-reg">STCW reg. / reference</label><input id="k-reg" value="${esc(c.reg||"")}" placeholder="e.g. VI/5"></div>
+    <div class="field"><label for="k-cat">Category</label><input id="k-cat" list="dl-kcat" value="${esc(c.cat||"Additional Training")}">${datalist("dl-kcat",allCats())}</div>
+  </div><div id="delZone"></div></form>
+  <div class="drawer-foot"><div>${isNew?"":`<button class="btn danger" type="button" id="delBtn">Remove</button>`}</div><button class="btn primary" type="button" id="saveBtn">${isNew?"Add to checklist":"Save changes"}</button></div>`);
+  $("#saveBtn").onclick=async()=>{const name=$("#k-name").value.trim();if(!name){$("#k-name").focus();toast("Please enter the course name.");return}
+    if(!needDb())return;try{await (c.id?col("courses").doc(c.id):col("courses").doc()).set({name,reg:$("#k-reg").value.trim(),cat:$("#k-cat").value.trim()||"Additional Training"});closeLayer();toast(c.id?"Course updated":"Course added to checklist")}catch(e){toast("Couldn't save: "+errMsg(e))}};
+  const del=$("#delBtn");if(del)del.onclick=()=>confirmDelete(c.name,()=>col("courses").doc(c.id).delete());
+}
+function openServiceForm(r){
+  const isNew=!r;r=r||{};const v=k=>esc(r[k]??"");const onb=!isNew&&!r.signOff;
+  const opName=profile.operator||"your current operator";
+  openLayer(`<div class="drawer-head"><h3>${isNew?"Add contract":"Edit contract"}</h3><button class="btn sm" type="button" data-close>Cancel</button></div>
+  <form class="drawer-body" novalidate><div class="form">
+    <div class="field full"><label for="s-vessel">Ship's name *</label><input id="s-vessel" value="${v("vessel")}" placeholder="e.g. Golden Centaurus"></div>
+    <div class="field"><label for="s-on">Sign-on date *</label><input id="s-on" type="date" value="${v("signOn")}"></div>
+    <div class="field"><label for="s-off">Sign-off date</label><input id="s-off" type="date" value="${v("signOff")}" ${onb?"disabled":""}>
+      <label class="inline"><input type="checkbox" id="s-onboard" ${onb?"checked":""}> On board now</label></div>
+    <div class="field"><label for="s-rank">Rank</label><input id="s-rank" list="dl-rank" value="${esc(r.rank||up(profile.rank)||"")}">${datalist("dl-rank",RANKS.concat(service.map(x=>up(x.rank))))}</div>
+    <div class="field"><label for="s-type">Fleet / vessel type</label><input id="s-type" list="dl-type" value="${esc(r.vesselType||"OIL/CHEMICAL TANKER")}">${datalist("dl-type",VTYPES.concat(service.map(x=>up(x.vesselType))))}</div>
+    <div class="field full"><label class="inline" style="text-transform:none;letter-spacing:0;font-size:14px;color:var(--ink);font-weight:600"><input type="checkbox" id="s-op" ${(isNew?!!profile.operator:r.withOperator)?"checked":""}> With operator (${esc(opName)})</label></div>
+    <div class="field"><label for="s-imo">IMO no. (optional)</label><input id="s-imo" inputmode="numeric" value="${v("imo")}"></div>
+    <div class="field"><label for="s-grt">GRT (optional)</label><input id="s-grt" inputmode="numeric" value="${v("grt")}"></div>
+    <div class="field"><label for="s-pon">Sign-on port</label><input id="s-pon" value="${v("portOn")}"></div>
+    <div class="field"><label for="s-poff">Sign-off port</label><input id="s-poff" value="${v("portOff")}"></div>
+    <div class="field full"><label for="s-rem">Remarks</label><textarea id="s-rem">${v("remarks")}</textarea></div>
+  </div><div id="delZone"></div></form>
+  <div class="drawer-foot"><div>${isNew?"":`<button class="btn danger" type="button" id="delBtn">Delete</button>`}</div><button class="btn primary" type="button" id="saveBtn">${isNew?"Add contract":"Save changes"}</button></div>`);
+  $("#s-onboard").addEventListener("change",e=>{$("#s-off").disabled=e.target.checked;if(e.target.checked)$("#s-off").value=""});
+  $("#saveBtn").onclick=async()=>{
+    const vessel=$("#s-vessel").value.trim(),on=$("#s-on").value,off=$("#s-onboard").checked?"":$("#s-off").value;
+    if(!vessel){$("#s-vessel").focus();toast("Please enter the ship's name.");return}
+    if(!on){$("#s-on").focus();toast("Please enter the sign-on date.");return}
+    if(!off&&!$("#s-onboard").checked){$("#s-off").focus();toast("Enter the sign-off date, or tick On board now.");return}
+    if(off&&off<on){$("#s-off").focus();toast("Sign-off date is before the sign-on date.");return}
+    if(!needDb())return;const btn=$("#saveBtn");btn.disabled=true;
+    const body={vessel,signOn:on,signOff:off,rank:up($("#s-rank").value.trim()),vesselType:up($("#s-type").value.trim()),withOperator:$("#s-op").checked,
+      imo:$("#s-imo").value.trim(),grt:$("#s-grt").value.trim(),portOn:$("#s-pon").value.trim(),portOff:$("#s-poff").value.trim(),remarks:$("#s-rem").value.trim(),updatedAt:new Date().toISOString()};
+    if(r.contract) body.contract=r.contract;
+    try{await (r.id?col("service").doc(r.id):col("service").doc()).set(body);closeLayer();toast(r.id?"Changes saved":"Contract added")}catch(e){btn.disabled=false;toast("Couldn't save: "+errMsg(e))}};
+  const del=$("#delBtn");if(del)del.onclick=()=>confirmDelete(r.vessel+" contract",()=>col("service").doc(r.id).delete());
+}
+function openProfile(){
+  const p=profile;const v=k=>esc(p[k]||"");
+  openLayer(`<div class="drawer-head"><h3>My profile</h3><button class="btn sm" type="button" data-close>Cancel</button></div>
+  <form class="drawer-body" novalidate><div class="form">
+    <div class="field full"><label for="p-name">Full name</label><input id="p-name" value="${v("name")}"></div>
+    <div class="field"><label for="p-rank">Current rank</label><input id="p-rank" list="dl-prank" value="${v("rank")}">${datalist("dl-prank",RANKS)}</div>
+    <div class="field"><label for="p-crew">Crew ID</label><input id="p-crew" value="${v("crewId")}"></div>
+    <div class="field full"><label for="p-op">Current operator / company</label><input id="p-op" value="${v("operator")}" placeholder="e.g. Golden Island"><div class="hint">Used for “Time with operator” in Sea service.</div></div>
+    <div class="field"><label for="p-dob">Date of birth</label><input id="p-dob" type="date" value="${v("dob")}"></div>
+    <div class="field"><label for="p-sn">Seaman Reg. No.</label><input id="p-sn" value="${v("seamanNo")}"></div>
+    <div class="field full"><label for="p-srb">Seaman Book No.</label><input id="p-srb" value="${v("srbNo")}"></div>
+  </div></form>
+  <div class="drawer-foot"><span></span><button class="btn primary" type="button" id="pSave">Save profile</button></div>`);
+  $("#pSave").onclick=async()=>{if(!needDb())return;
+    try{await db.doc(`${base()}/profile`).set({name:$("#p-name").value.trim(),rank:up($("#p-rank").value.trim()),crewId:$("#p-crew").value.trim(),operator:up($("#p-op").value.trim()),dob:$("#p-dob").value,seamanNo:$("#p-sn").value.trim(),srbNo:$("#p-srb").value.trim()});closeLayer();toast("Profile saved")}catch(e){toast("Couldn't save: "+errMsg(e))}};
+}
+
+/* ---------- events ---------- */
+document.addEventListener("click",e=>{
+  const t=e.target.closest("[data-open],[data-edit],[data-close],[data-addkey],[data-filter],[data-sedit],[data-sadd],[data-kadd],[data-kedit],[data-cadd-cert],[data-cedit]"); if(!t) return;
+  const d=t.dataset;
+  if(d.open){e.preventDefault();openDetail(d.open)}
+  else if(d.edit){openCertForm(certs.find(x=>x.id===d.edit))}
+  else if(t.hasAttribute("data-close")){closeLayer()}
+  else if(d.addkey){openCertForm(null,d.addkey)}
+  else if(d.caddCert){openCertForm(null)}
+  else if(d.kadd){openCourseForm(null)}
+  else if(d.kedit){openCourseForm(courses.find(x=>x.id===d.kedit))}
+  else if(d.sadd){openServiceForm(null)}
+  else if(d.cedit){const r=service.find(x=>x.id===d.cedit);if(r)openContractForm(r)}
+  else if(d.sedit){openServiceForm(service.find(x=>x.id===d.sedit))}
+  else if(d.filter){filter=(filter===d.filter&&d.filter!=="all")?"all":d.filter;setTab("certs");renderSummary();renderCerts()}
+});
+$("#addBtn").onclick=()=>tab==="sea"?openServiceForm(null):openCertForm(null);
+$("#editProfileBtn").onclick=openProfile;
+$("#backupBtn").onclick=openBackup;
+$("#q").addEventListener("input",e=>{query=e.target.value.trim().toLowerCase();renderCerts();renderCheck();renderSea()});
+function setTab(t){tab=t;for(const [id,k] of [["#tabCerts","certs"],["#tabSea","sea"],["#tabCheck","check"]])$(id).setAttribute("aria-selected",String(t===k));
+  $("#viewCerts").hidden=t!=="certs";$("#viewSea").hidden=t!=="sea";$("#viewCheck").hidden=t!=="check";$("#certTop").hidden=t==="sea";$("#noteCert").hidden=t==="sea";
+  $("#addBtn").textContent=t==="sea"?"+ Add contract":"+ Add certificate";
+  $("#q").placeholder=t==="sea"?"Search ship, rank, type…":"Search name, number, issuer…"}
+$("#tabCerts").onclick=()=>setTab("certs");$("#tabSea").onclick=()=>setTab("sea");$("#tabCheck").onclick=()=>setTab("check");
+if(location.hash==="#sea")setTab("sea");
+
+/* ---------- offline storage (this device only) ---------- */
+const KEY="myseafarer.v1";
+let store={profile:{},certs:{},service:{},courses:{}};
+function loadStore(){try{const raw=localStorage.getItem(KEY);if(raw){const d=JSON.parse(raw);store={profile:d.profile||{},certs:d.certs||{},service:d.service||{},courses:d.courses||{}}}}catch(e){console.error(e)}}
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(store));store.savedAt=new Date().toISOString()}catch(e){toast("Couldn't save on this device. Storage may be full.");throw e}syncFromStore()}
+function syncFromStore(){profile=store.profile||{};
+  const arr=o=>Object.entries(o||{}).map(([id,d])=>({id,...d}));
+  certs=arr(store.certs);service=arr(store.service);courses=arr(store.courses);renderAll()}
+const rid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+function makeCol(n){return {doc(id){id=id||rid();return {id,
+  async set(b){store[n][id]=JSON.parse(JSON.stringify(b));persist()},
+  async update(b){store[n][id]={...(store[n][id]||{}),...JSON.parse(JSON.stringify(b))};persist()},
+  async delete(){delete store[n][id];persist()}}}}}
+uid="device";
+col=n=>makeCol(n);
+db={doc(){return {async set(b){store.profile=JSON.parse(JSON.stringify(b));persist()}}}};
+
+/* ---------- backup / restore ---------- */
+function backupJSON(){return JSON.stringify({app:"MySeafarer",version:1,exportedAt:new Date().toISOString(),profile:store.profile,certs:store.certs,service:store.service,courses:store.courses},null,2)}
+function openBackup(){
+  const n=certs.length,m=service.length;
+  openLayer(`<div class="drawer-head"><h3>Backup &amp; restore</h3><button class="btn sm" type="button" data-close>Close</button></div>
+  <div class="drawer-body">
+    <p style="margin-top:0">MySeafarer saves everything <b>on this device only</b>. It works without internet, but if you delete the app, clear Safari/Chrome data or change phone, the data goes with it. Save a backup file now and then, especially before sign-off.</p>
+    <div class="list" style="padding:14px 16px;margin:14px 0"><b>On this device:</b> ${n} certificate${n===1?"":"s"}, ${m} contract${m===1?"":"s"}${store.profile&&store.profile.name?` · ${esc(store.profile.name)}`:""}</div>
+    <h4 style="font-family:var(--f-display);margin:18px 0 6px">Save a backup</h4>
+    <p class="hint" style="margin:0 0 10px">Creates a .json file. Keep it in Files, Google Drive or WhatsApp to yourself.</p>
+    <button class="btn primary" type="button" id="bkSave">Save backup file</button>
+    <h4 style="font-family:var(--f-display);margin:22px 0 6px">Restore from a backup</h4>
+    <p class="hint" style="margin:0 0 10px">Replaces everything on this device with the backup file.</p>
+    <label class="btn" for="bkFile">Choose backup file…</label><input id="bkFile" type="file" accept="application/json,.json" hidden>
+    <div id="bkMsg"></div>
+  </div>`);
+  $("#bkSave").onclick=async()=>{
+    const name=`MySeafarer-backup-${todayISO()}.json`;const blob=new Blob([backupJSON()],{type:"application/json"});
+    try{const file=new File([blob],name,{type:"application/json"});
+      if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:"MySeafarer backup"});toast("Backup ready");return}}catch(e){if(e&&e.name==="AbortError")return}
+    const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);toast("Backup saved");
+  };
+  $("#bkFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();
+    rd.onload=()=>{let d;try{d=JSON.parse(rd.result)}catch(_){$("#bkMsg").innerHTML=`<div class="confirm" style="border-color:var(--bad)"><span>That file isn't a MySeafarer backup.</span></div>`;return}
+      if(!d||d.app!=="MySeafarer"){$("#bkMsg").innerHTML=`<div class="confirm"><span>That file isn't a MySeafarer backup.</span></div>`;return}
+      const c=Object.keys(d.certs||{}).length,v=Object.keys(d.service||{}).length;
+      $("#bkMsg").innerHTML=`<div class="confirm"><span>Replace this device's data with <b>${c} certificates</b> and <b>${v} contracts</b>${d.profile&&d.profile.name?` for <b>${esc(d.profile.name)}</b>`:""}?</span><span style="display:flex;gap:8px"><button class="btn sm" type="button" id="rsNo">Cancel</button><button class="btn sm danger" type="button" id="rsYes">Replace</button></span></div>`;
+      $("#rsNo").onclick=()=>$("#bkMsg").innerHTML="";
+      $("#rsYes").onclick=()=>{store={profile:d.profile||{},certs:d.certs||{},service:d.service||{},courses:d.courses||{}};persist();closeLayer();toast("Backup restored")};
+    };rd.readAsText(f)};
+}
+
+/* ---------- boot ---------- */
+loadStore();
+syncFromStore();
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(_){}
+if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}
+function netBadge(){const b=$("#netBadge");if(b)b.hidden=navigator.onLine}
+window.addEventListener("online",netBadge);window.addEventListener("offline",netBadge);netBadge();
+</script>
+
+</body>
+</html>
